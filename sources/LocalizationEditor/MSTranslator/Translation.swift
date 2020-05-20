@@ -13,9 +13,9 @@ class Translation: NSObject {
     var dictionaryLangEach = DictionaryLanguages()
     var dictionaryTranslationTo = DictTranslationsTo()
     let jsonDecoder = JSONDecoder()
-
+    var azureKey: String?
+    var debugREST: Bool = false // set to true to display HTTPS Reset API sent / response.
     var secondLanguageArray = [DictTranslationsTo]()
-
 
     //*****IBAction
     /*    curl -X POST "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=es" \
@@ -31,7 +31,7 @@ class Translation: NSObject {
          if jsonData.count == 0 { return }
 
         let str = String(decoding: jsonData, as: UTF8.self)
-        print("Translation List, JSON Response Returned:", str, "\n")        // Lookup: [{"text":"exit"}]
+        if debugREST {  print("Translation List, JSON Response Returned:", str, "\n")  }      // Lookup: [{"text":"exit"}]
 
         //  URL: https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=en&to=ja
         //  Body: [{"text":"Enter Text"}]
@@ -105,7 +105,8 @@ class Translation: NSObject {
        */
      func parseJson(jsonData: Data, typeOfRequest: String) -> String {
         if jsonData.count < 3 { return "No data returned".localized }
-        let str = String(decoding: jsonData, as: UTF8.self); print("JSON Response Returned:", str, "\n")        // Lookup: [{"text":"exit"}]
+        if debugREST {  let str = String(decoding: jsonData, as: UTF8.self); print("JSON Response Returned:", str, "\n")   }      // Lookup: [{"text":"exit"}]
+
         var resultsString = "nil"
         if typeOfRequest == "translate" {
             self.exampleText = ""; self.exampleTranslation = "" // reset until dict lookup done again.
@@ -243,8 +244,8 @@ class Translation: NSObject {
                 arrayLangInfo[counter].code = languageKey
                 counter += 1
             }
-        }
-       
+    }
+
         arrayLangInfo.sort(by: { $0.name < $1.name }) //sort the structs based on the language name
         return arrayLangInfo
     }
@@ -309,7 +310,7 @@ func setupRequest(apiURL: String, jsonToTranslate: Data) -> URLRequest {
     request.httpBody = jsonToTranslate
     let bodyLen = request.httpBody!.count
 
-    request.addValue(azureKey, forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
+    request.addValue(azureKey!, forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
     request.addValue(azureRegion, forHTTPHeaderField: "Ocp-Apim-Subscription-Region")
     request.addValue(contentType, forHTTPHeaderField: "Content-Type")
     request.addValue(traceID, forHTTPHeaderField: "X-ClientTraceID")
@@ -317,7 +318,8 @@ func setupRequest(apiURL: String, jsonToTranslate: Data) -> URLRequest {
     request.addValue(String(bodyLen ), forHTTPHeaderField: "Content-Length")
 
     let str = String(decoding: request.httpBody!, as: UTF8.self)
-    print("URL:", apiURL, "\nHeaders:", request.allHTTPHeaderFields!, "\nBody:", str, "\n")
+    if debugREST {
+        print("URL:", apiURL, "\nHeaders:", request.allHTTPHeaderFields!, "\nBody:", str, "\n") }
     return request
 }
 

@@ -2,8 +2,8 @@
 //  LookupTranslationViewController.swift
 //  LocalizationEditor
 //
-//  Created by Igor Kulman on 14/03/2019.
-//  Copyright © 2019 Igor Kulman. All rights reserved.
+//  Created by Mark Fleming, markf@imagemontage.com
+//  Copyright © 2020 Mark Fleming. All rights reserved.
 //
 
 import Cocoa
@@ -19,6 +19,8 @@ final class LookupTranslationViewController: NSViewController {
     @IBOutlet private weak var window: NSWindow!
     @IBOutlet private weak var fromLanguage: NSPopUpButton!
     @IBOutlet private weak var toLanguage: NSPopUpButton!
+
+    @IBOutlet private weak var msAzureKeyText: NSTextField!
 
     @IBOutlet private weak var textToSubmitTxtView: NSTextView!
     @IBOutlet private weak var textReturnedTxtView: NSTextView!
@@ -43,6 +45,10 @@ final class LookupTranslationViewController: NSViewController {
       //  print ("LookupUP Translation Loaded")
         arrayLangInfo = msTransalate.getTranslationLanguages()
         // MARK: - Setup
+       // msTransalate.azureKey = "cb8b61b7e77142288108b771af2f73bf"
+        let defaults = UserDefaults.standard
+        msTransalate.azureKey  = defaults.object(forKey: "msAzureKeyText") as? String ?? "<requires MS Azure key>"
+        msAzureKeyText.stringValue = msTransalate.azureKey!
 
         let menuFrom = fromLanguage.menu,
                     menuTo = toLanguage.menu
@@ -58,11 +64,23 @@ final class LookupTranslationViewController: NSViewController {
           //  }
         }
 
-// TODO: Save last selection as default
-        setFromLanguage(languageCode: "en")
-        setToLanguage(languageCode: "fr")
+// restore last selection from default
+        let fromLang = defaults.string(forKey: "fromLang") ?? "en"
+        setFromLanguage(languageCode: fromLang)
 
+        let toLang = defaults.string(forKey: "toLang") ?? "fr"
+        setToLanguage(languageCode: toLang)
         self.window.contentViewController = self
+
+      //  print("restore:", fromLang, toLang)
+        if self.dataSource != nil {
+            let group = self.dataSource?.getSelectedGroup()
+            print(group!.name)
+            listExistingLang = self.dataSource!.selectGroupAndGetLanguages(for: group!.name)
+            let loctext: LocalizationString  = (self.dataSource?.getLocalization(language: fromLang, row: self.currentRow ))!
+            print(loctext)
+
+        }
 
     }   // end viewDidLoad
 
@@ -89,6 +107,13 @@ func setFromLanguage(languageCode: String) {
        }
 
     // MARK: - Actions
+
+    @IBAction private func keyChanged(_ sender: Any) {
+
+        msTransalate.azureKey = msAzureKeyText.stringValue
+        let defaults = UserDefaults.standard
+        defaults.set(msTransalate.azureKey, forKey: "msAzureKeyText")
+    }
 
     // https://docs.microsoft.com/en-us/azure/cognitive-services/translator/reference/v3-0-translate
     @IBAction private func getTranslationBtn(_ sender: Any) {
@@ -145,16 +170,21 @@ func setFromLanguage(languageCode: String) {
         var toLangCode = Int()
 
         let text2Translate = textToSubmitTxtView.string   // NSTextView!
-        if text2Translate.count == 0 {
-            DispatchQueue.main.async { self.textReturnedTxtView.string = "Please enter text to be looked up in dictionary".localized
-            }
-        return
-        }
+
         // end values...
         fromLangCode = self.fromLanguage.indexOfSelectedItem
         toLangCode = self.toLanguage.indexOfSelectedItem
         let selectedFromLangCode = arrayLangInfo[fromLangCode].code
         let selectedToLangCode = arrayLangInfo[toLangCode].code
+
+        let defaults = UserDefaults.standard   // save selected lang.
+        defaults.set(selectedToLangCode, forKey: "toLang")
+        defaults.set(selectedFromLangCode, forKey: "fromLang")
+
+        if text2Translate.count == 0 {
+            DispatchQueue.main.async { self.textReturnedTxtView.string = "Please enter text to be looked up in dictionary".localized  }
+            return
+        }
         print("Dictionary Lookup from:", selectedFromLangCode, "To:", selectedToLangCode, "Text: ", text2Translate)
 
         // https://api.cognitive.microsofttranslator.com/dictionary/lookup?api-version=3.0
