@@ -31,6 +31,11 @@ dictionary lookup - Provides alternative translations for a word and a small num
 
 Subscribe to Translator or Cognitive Services multi-service in Azure Cognitive Services, and use your subscription key (available in the Azure portal) to authenticate. Interface has place to put the key. It is saved in preferences once enter.  
 
+TO DO: 
+- add option to translate all missing (For 1st draft translation).
+- have the translation from term set when you click on the  open translatio button. 
+- have the apply translation button enter the new translation.
+
 ## Installation
 
 ### Homebrew
