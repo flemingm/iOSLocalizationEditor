@@ -21,6 +21,16 @@ All the translations are sorted by their key (shown as first column) and you can
 
 When you change any of the translations the corresponding `Localizable.strings` gets updated.
 
+New feature added:
+
+Added support to use Microsoft Text transaltion routines. See: https://docs.microsoft.com/en-ca/azure/cognitive-services/Translator/reference/v3-0-reference
+
+Options to translate text, look up dictionary meaning and usage examples
+
+dictionary lookup - Provides alternative translations for a word and a small number of idiomatic phrases. Each translation has a part-of-speech and a list of back-translations. The back-translations enable a user to understand the translation in context. The Dictionary Example operation allows further drill down to see example uses of each translation pair.
+
+Subscribe to Translator or Cognitive Services multi-service in Azure Cognitive Services, and use your subscription key (available in the Azure portal) to authenticate. Interface has place to put the key. It is saved in preferences once enter.  
+
 ## Installation
 
 ### Homebrew
