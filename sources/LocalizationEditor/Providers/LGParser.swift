@@ -108,9 +108,9 @@ final class LGParser: NSObject, XMLParserDelegate {
     //  let theGroup: LocalizationGroup = self.dataSource.getSelectedGroup()
     os_log("\n>>> [%@] -> [%@] appling to %@... %d", type: OSLogType.debug, self.eLGBaseLocal, self.eLGTranLocal, theGroup.name, self.LGresults.count)
 
-    // confirm we have source and trans language and apply to missing.
-    let lang = dataSource.selectGroupAndGetLanguages(for: theGroup.name)
-  //  dump(lang)    // list languages loaded for translation.
+        // confirm we have source and trans language and apply to missing.
+        let lang = dataSource.selectGroupAndGetLanguages(for: theGroup.name)
+        //  dump(lang)    // list languages loaded for translation.
 
     if lang.contains(self.eLGBaseLocal) &&
        lang.contains(self.eLGTranLocal) {

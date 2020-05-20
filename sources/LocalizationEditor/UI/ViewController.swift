@@ -4,7 +4,7 @@
 //
 //  Created by Igor Kulman on 30/05/2018.
 //  Copyright © 2018 Igor Kulman. All rights reserved.
-//
+//  LG Support and MS Translation integration Copyright Mark Fleming, All rights reserved.
 
 import Cocoa
 import os
@@ -57,6 +57,20 @@ final class ViewController: NSViewController, XMLParserDelegate {
         setupData()
     }
 
+     private func openMSTranslator(of key: String) {
+        // Apply to missing translations (set filtering?)
+        self.dataSource.filter(by: .missing, searchString: self.currentSearchTerm)
+        let theGroup: LocalizationGroup = self.dataSource.getSelectedGroup()
+
+        // confirm we have source and trans language and apply to missing.
+           let lang = dataSource.selectGroupAndGetLanguages(for: theGroup.name)
+           dump(lang)    // list languages loaded for translation.
+
+      //  let translatedCnt = lgparser.applytranslation(theGroup: theGroup, dataSource: self.dataSource)
+        // force updated new transaltion to be displayed.
+        self.userDidRequestLocalizationGroupChange(group: theGroup.name)
+        self.dataSource.filter(by: self.currentFilter, searchString: self.currentSearchTerm)
+    }
 	// MARK: - XML of Apple Glossary (.lg)
     private func openLGFile() {
         let openPanel = NSOpenPanel()
@@ -226,6 +240,18 @@ extension ViewController: LocalizationCellDelegate {
 // MARK: - ActionsCellDelegate
 
 extension ViewController: ActionsCellDelegate {
+    //  -> (Array, String, String)  List of languages, From, To string.
+    func userDidRequestGetGroup(of key: String) -> [String] {
+        let theGroup: LocalizationGroup = self.dataSource.getSelectedGroup()
+     //   dump(theGroup)
+              // confirm we have source and trans language and apply to missing.
+       // - Parameter group: group name
+        // - Returns: array of languages : Strings
+    //    dump(dataSource.getSelectedGroup())
+        let lang = dataSource.selectGroupAndGetLanguages(for: theGroup.name)
+        dump(lang)    // list languages loaded for translation.
+        return lang
+    }
     func userDidRequestRemoval(of key: String) {
         dataSource.deleteLocalization(key: key)
 
@@ -239,11 +265,48 @@ extension ViewController: ActionsCellDelegate {
 // MARK: - WindowControllerToolbarDelegate
 
 extension ViewController: WindowControllerToolbarDelegate {
+
+   func userDidRequestGetTranslatorInfo(of key: String) -> ([String], Int, LocalizationsDataSource) {
+       // let row = self.dataSource.getRowForKey(key: key)
+        /* localizations: 3 elements
+         ▿ EN: 33 translations (/Users/markf/Downloads/iOSLocalizationEditor-master/sources/LocalizationEditor/Resources/en.lproj/Localizable.strings) #1
+           - language: "en"
+           ▿ translations: 33 elements
+             ▿ actions = Actions #2
+               - key: "actions"
+               - value: "Actions"
+               - message: nil
+         ...
+         */
+    //    let rowcnt = dataSource.numberOfRows(in: self.tableView)
+        let row = self.dataSource.getRowForKey(key: key)
+        let message = self.dataSource.getMessage(row: row!)
+        let text : LocalizationString = self.dataSource.getLocalization(language: "en", row: row!)
+
+        print("userDidRequestGetTranslatorInfo", row, "key:", key, "text", text, "message", message)
+       // dump(text)
+        let theGroup: LocalizationGroup = self.dataSource.getSelectedGroup()
+       // dump(theGroup)
+
+             // confirm we have source and trans language and apply to missing.
+        let lang = dataSource.selectGroupAndGetLanguages(for: theGroup.name)
+       // dump(lang)    // list languages loaded for translation.
+     //  for lang =  localizations
+    return (lang, row!, self.dataSource)
+    }
+
+    func userDidRequestOpenMSTranslator(of key: String) {
+        print ("videw Ctrl - userDidRequestOpenMSTranslator");
+        let theGroup: LocalizationGroup = self.dataSource.getSelectedGroup()
+        dump(theGroup)
+              // confirm we have source and trans language and apply to missing.
+        let lang = dataSource.selectGroupAndGetLanguages(for: theGroup.name)
+        dump(lang)    // list languages loaded for translation.
+        openMSTranslator( of: key)
+    }
+
     func userDidRequestApplyGlossary() {
-        // Not implemented yet..
-
 		openLGFile()
-
     }
 
     /**

@@ -33,7 +33,7 @@ final class LocalizationsDataSource: NSObject {
     // MARK: - Properties
 
     private let localizationProvider = LocalizationProvider()
-    private var localizationGroups: [LocalizationGroup] = []
+    private var localizationGroups: [LocalizationGroup] = []    // list of .string files.
     private var selectedLocalizationGroup: LocalizationGroup?
     private var languagesCount = 0
     private var masterLocalization: Localization?
@@ -114,7 +114,7 @@ final class LocalizationsDataSource: NSObject {
     }
 
     /**
-     Get Selected group  - used by LGParser
+     Get Selected group 
      - Returns: LocalizationGroup
      */
     func getSelectedGroup() -> LocalizationGroup {
@@ -124,7 +124,7 @@ final class LocalizationsDataSource: NSObject {
     }
 
     /**
-     Selects given group and gets available languages  - used by LGParser
+     Selects given group and gets available languages
 
      - Parameter group: group name
      - Returns: array of languages
@@ -155,6 +155,7 @@ final class LocalizationsDataSource: NSObject {
         }
 
         os_log("Searching for %@", type: OSLogType.debug, searchString)
+
         var keys: [String] = []
         for (key, value) in data {
             // include if key matches (no need to check further)
@@ -260,7 +261,13 @@ final class LocalizationsDataSource: NSObject {
 
         selectedLocalizationGroup.localizations.forEach({ localization in
             let newTranslation = localizationProvider.addKeyToLocalization(localization: localization, key: key, message: message)
-            data[key] = [localization.language: newTranslation]
+            // If we already created the entry in the data dict, do not overwrite the entry entirely.
+            // Instead just add the data to the already present entry.
+            if data[key] != nil {
+                data[key]?[localization.language] = newTranslation
+            } else {
+            	data[key] = [localization.language: newTranslation]
+            }
         })
     }
 

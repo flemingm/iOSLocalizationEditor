@@ -34,7 +34,7 @@ final class LocalizationProvider {
             return
         }
 
-        os_log("Updating %@ to %@ with Message: %@)", type: OSLogType.debug, key, value, message ?? "No Message.")
+        os_log("Updating %@ in %@ with Message: %@)", type: OSLogType.debug, key, value, message ?? "No Message.")
 
         localization.update(key: key, value: value, message: message)
 
@@ -66,7 +66,7 @@ final class LocalizationProvider {
 
         do {
             try data.write(toFile: localization.path, atomically: false, encoding: .utf8)
-          //  os_log("Localization file for %@ updated", type: OSLogType.debug, localization.path)
+            os_log("Localization file for %@ updated", type: OSLogType.debug, localization.path)
         } catch {
             os_log("Writing localization file for %@ failed with %@", type: OSLogType.error, localization.path, error.localizedDescription)
         }
