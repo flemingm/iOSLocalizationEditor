@@ -281,7 +281,7 @@ extension ViewController: WindowControllerToolbarDelegate {
     //    let rowcnt = dataSource.numberOfRows(in: self.tableView)
         let row = self.dataSource.getRowForKey(key: key)
         let message = self.dataSource.getMessage(row: row!)
-        let text : LocalizationString = self.dataSource.getLocalization(language: "en", row: row!)
+        let text: LocalizationString = self.dataSource.getLocalization(language: "en", row: row!)
 
         print("userDidRequestGetTranslatorInfo", row, "key:", key, "text", text, "message", message)
        // dump(text)
@@ -296,7 +296,7 @@ extension ViewController: WindowControllerToolbarDelegate {
     }
 
     func userDidRequestOpenMSTranslator(of key: String) {
-        print ("videw Ctrl - userDidRequestOpenMSTranslator");
+        print("videw Ctrl - userDidRequestOpenMSTranslator");
         let theGroup: LocalizationGroup = self.dataSource.getSelectedGroup()
         dump(theGroup)
               // confirm we have source and trans language and apply to missing.
